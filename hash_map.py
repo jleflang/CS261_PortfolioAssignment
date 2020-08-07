@@ -1,7 +1,7 @@
 # Course: CS261 - Data Structures
 # Assignment: 5
-# Student:
-# Description:
+# Student: James Leflang
+# Description: An implementation of a Hashmap without native Python List methods.
 
 
 # Import pre-written DynamicArray and LinkedList classes
@@ -57,58 +57,135 @@ class HashMap:
         return out
 
     def clear(self) -> None:
+        """Clears all content of this Hash map.
+
         """
-        TODO: Write this implementation
-        """
-        pass
+        for indx in range(self.capacity):
+            for node in self.buckets.get_at_index(indx):
+                self.buckets.get_at_index(indx).remove(node.key)
+
+        return
 
     def get(self, key: str) -> object:
+        """Gets the value associated with the key.
+        Args:
+            key (str): Key to look up.
         """
-        TODO: Write this implementation
-        """
+        for indx in range(self.capacity):
+            list = self.buckets.get_at_index(indx)
+
+            if list.contains(key):
+                for node in list:
+                    return node.value
+
         return None
 
     def put(self, key: str, value: object) -> None:
+        """Puts/Updates a hash value at a specified key in this Hash map.
+        Args:
+            key (str): Key to insert the value.
+            value: Value to insert.
         """
-        TODO: Write this implementation
-        """
-        pass
+        if self.contains_key(key):
+            for indx in range(self.capacity):
+                for node in self.buckets.get_at_index(indx):
+                    if node.key is key:
+                        node.value = value
+                        break
+        else:
+            for indx in range(self.capacity):
+                if self.buckets.get_at_index(indx).length() is 0:
+                    self.buckets.get_at_index(indx).insert(key, value)
+                    break
+
+            self.size += 1
+
+        return
 
     def remove(self, key: str) -> None:
+        """Removes a given key and all of its values from this Hash map.
+        Args:
+            key (str): Key to remove.
         """
-        TODO: Write this implementation
-        """
-        pass
+        if self.contains_key(key):
+            for indx in range(self.capacity):
+                for node in self.buckets.get_at_index(indx):
+                    if node.key is key:
+                        self.buckets.get_at_index(indx).remove(node.key)
+
+        return
 
     def contains_key(self, key: str) -> bool:
+        """Determines if a key is in this Hash map.
+        Args:
+            key (str): Key to find.
+        Returns:
+            bool: True if the key is in the Hash map, False if not.
         """
-        TODO: Write this implementation
-        """
+        for indx in range(self.capacity):
+            list = self.buckets.get_at_index(indx)
+
+            if list.contains(key) is not None:
+                return True
+
         return False
 
     def empty_buckets(self) -> int:
+        """Gets the number of empty buckets in this Hash map.
+        Returns:
+            int: Number of empty buckets.
         """
-        TODO: Write this implementation
-        """
-        return 0
+        empty = 0
+
+        for indx in range(self.capacity):
+            if self.buckets.get_at_index(indx).length() is 0:
+                empty += 1
+
+        return empty
 
     def table_load(self) -> float:
+        """Gets the overall usage of this Hash map.
+        Returns:
+            float: Overall usage.
         """
-        TODO: Write this implementation
-        """
-        return 0.0
+        hashes = 0
+
+        for indx in range(self.capacity):
+            list = self.buckets.get_at_index(indx)
+
+            hashes += list.length()
+
+        return hashes / self.capacity
 
     def resize_table(self, new_capacity: int) -> None:
+        """Changes the capacity of this Hash map.
+        Args:
+            new_capacity (int): New capacity of this Hash map.
         """
-        TODO: Write this implementation
-        """
-        pass
+        if new_capacity < 1:
+            return
+
+        for _ in range(self.capacity, new_capacity):
+            self.buckets.append(LinkedList())
+
+        self.capacity = new_capacity
+
+        return
 
     def get_keys(self) -> DynamicArray:
+        """Gets an DynamicArray of keys from this Hash Table.
+        Returns:
+            DynamicArray: Array of keys in this Hash Table.
         """
-        TODO: Write this implementation
-        """
-        return DynamicArray()
+        keys = DynamicArray()
+
+        for indx in range(self.capacity):
+            list = self.buckets.get_at_index(indx)
+
+            for node in list:
+                keys.append(node.key)
+
+        return keys
 
 
 # BASIC TESTING
