@@ -45,18 +45,22 @@ class MinHeap:
         return self.heap.length() == 0
 
     def _rec_add(self, index: int) -> None:
+        """Helper for add.
+        Args:
+            index (int): Starting index.
         """
-
-        """
+        # We are the minimum node!
         if index == 0:
             return
 
+        # Get the node and its parent
         node = self.heap.get_at_index(index)
         parent = self.heap.get_at_index((index - 1) // 2)
 
+        # If the node is less than its parent
         if node < parent:
+            # Swap and continue upward
             self.heap.swap(index, (index - 1) // 2)
-
             self._rec_add((index - 1) // 2)
 
         return
@@ -66,13 +70,16 @@ class MinHeap:
         Args:
             node: Node to be added.
         """
+        # Add the node to the end
         self.heap.append(node)
 
+        # Get the parent
         parent = self.heap.get_at_index((self.heap.length() - 2) // 2)
 
+        # If the node is less than its parent
         if node < parent:
+            # Swap and move upward
             self.heap.swap(self.heap.length() - 1, ((self.heap.length() - 2) // 2))
-
             self._rec_add((self.heap.length() - 2) // 2)
 
         return
@@ -82,25 +89,28 @@ class MinHeap:
         Returns:
             object: Minimum value.
         """
+        # This heap is empty
         if self.is_empty():
             raise MinHeapException
 
         return self.heap.get_at_index(0)
 
     def _rec_remove(self, index: int) -> None:
+        """Helper for remove.
+        Args:
+            index (int): Starting index.
         """
-
-        """
+        # Get the indices of the children
         child1 = 2 * index + 1
         child2 = child1 + 1
 
+        # If those indices are outside the size of the heap, return
         if child1 > self.heap.length() and child2 > self.heap.length():
             return
 
+        # Get the child nodes
         child1_node = None
         child2_node = None
-
-        node = self.heap.get_at_index(index)
 
         if child1 < self.heap.length():
             child1_node = self.heap.get_at_index(child1)
@@ -108,22 +118,41 @@ class MinHeap:
         if child2 < self.heap.length():
             child2_node = self.heap.get_at_index(child2)
 
+        # If the children are null, return
+        if child1_node is None and child2_node is None:
+            return
+
+        # Get the current parent node
+        node = self.heap.get_at_index(index)
+
+        # If the second child is null
         if child2_node is None:
+            # And the first child is less than the parent
+            # Swap and continue
             if child1_node < node:
                 self.heap.swap(index, child1)
                 self._rec_remove(child1)
+        # If the first child is null
         elif child1_node is None:
+            # And the second child is less than the parent
+            # Swap and continue
             if child2_node < node:
                 self.heap.swap(index, child2)
                 self._rec_remove(child2)
         else:
+            # If the first child is smaller
             if child1_node < child2_node:
+                # And the first child is less than the parent
+                # Swap and continue
                 if child1_node < node:
                     self.heap.swap(index, child1)
                     self._rec_remove(child1)
             else:
-                self.heap.swap(index, child2)
-                self._rec_remove(child2)
+                # And the second child is less than the parent
+                # Swap and continue
+                if child2_node < node:
+                    self.heap.swap(index, child2)
+                    self._rec_remove(child2)
 
         return
 
@@ -132,29 +161,75 @@ class MinHeap:
         Returns:
             object: Minimum value.
         """
+        # This heap is empty
         if self.is_empty():
             return MinHeapException
 
+        # The min value is the first value in the heap
         min = self.heap.get_at_index(0)
 
+        # Special case
         if self.heap.length() == 1:
             return self.heap.pop()
 
+        # Pop it off last element
         last = self.heap.pop()
 
+        # Put the last element as the first
         self.heap.set_at_index(0, last)
 
+        # If the heap is larger than 1, continue swapping
         if self.heap.length() > 1:
             self._rec_remove(0)
 
         return min
+
+    def _heapify(self, index: int) -> None:
+        """Helper for build_heap. Uses the described algorithm in O(n) time
+        with modification for this implementation.
+        Args:
+            index (int): Current index.
+        """
+        # The indices of the children
+        left = 2 * index + 1
+        right = left + 1
+
+        # Default is that the parent is the smallest
+        smallest = index
+
+        # If the left child is smaller and in range
+        if left < self.heap.length() and self.heap.get_at_index(index) > self.heap.get_at_index(left):
+            smallest = left
+        # If the right child is smaller and in range
+        if right < self.heap.length() and self.heap.get_at_index(index) > self.heap.get_at_index(right):
+            smallest = right
+
+        # If the smallest is not the parent
+        if smallest != index:
+            # Swap and continue up
+            self.heap.swap(index, smallest)
+            self._heapify(smallest)
+
+        return
 
     def build_heap(self, da: DynamicArray) -> None:
         """Builds a new MinHeap over this MinHeap. This is a destructive method.
         Args:
             da (DynamicArray): The new DynamicArray.
         """
-        pass
+        # http://staff.ustc.edu.cn/~csli/graduate/algorithms/book6/chap07.htm
+        # The best explanation and proof that this method is O(n)
+
+        # Build a new Heap
+        self.heap = DynamicArray()
+        for index in range(da.length()):
+            self.heap.append(da.get_at_index(index))
+
+        # Heapify from the bottom up to the root
+        for indx in range(self.heap.length() // 2, -1, -1):
+            self._heapify(indx)
+
+        return
 
 
 # BASIC TESTING

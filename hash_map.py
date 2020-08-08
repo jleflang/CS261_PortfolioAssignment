@@ -71,15 +71,21 @@ class HashMap:
         """Gets the value associated with the key.
         Args:
             key (str): Key to look up.
+        Returns:
+            object: The value associated with the key.
         """
+        # Generate the hash/index
         hash = self.hash_function(key)
         index = hash % self.capacity
-
+        # Get the SLL at the index
         list = self.buckets.get_at_index(index)
 
+        # If the list contains the key,
+        # look for the node that matches the key and return the value
         if list.contains(key):
             for node in list:
-                return node.value
+                if node.key == key:
+                    return node.value
 
         return None
 
@@ -89,14 +95,18 @@ class HashMap:
             key (str): Key to insert the value.
             value: Value to insert.
         """
+        # Generate the hash/index
         hash = self.hash_function(key)
         index = hash % self.capacity
 
+        # The key is already in the Hash map
         if self.contains_key(key):
+            # Update the node with the key to the new value
             for node in self.buckets.get_at_index(index):
                 if node.key is key:
                     node.value = value
         else:
+            # Add the new node and up the size
             self.buckets.get_at_index(index).insert(key, value)
             self.size += 1
 
@@ -107,14 +117,17 @@ class HashMap:
         Args:
             key (str): Key to remove.
         """
+        # Generate the hash/index
         hash = self.hash_function(key)
         index = hash % self.capacity
 
+        # If this Hash map contains the key
         if self.contains_key(key):
+            # Find the node and remove it
             for node in self.buckets.get_at_index(index):
-                if node.key is key:
+                if node.key == key:
                     self.buckets.get_at_index(index).remove(node.key)
-
+            # Decrement the size
             self.size -= 1
 
         return
@@ -126,11 +139,13 @@ class HashMap:
         Returns:
             bool: True if the key is in the Hash map, False if not.
         """
+        # Generate the hash/index
         hash = self.hash_function(key)
         index = hash % self.capacity
-
+        # Get the SLL
         list = self.buckets.get_at_index(index)
 
+        # IF this SLL has the key, then true
         if list.contains(key) is not None:
             return True
 
@@ -144,7 +159,7 @@ class HashMap:
         empty = 0
 
         for indx in range(self.capacity):
-            if self.buckets.get_at_index(indx).length() is 0:
+            if self.buckets.get_at_index(indx).length() == 0:
                 empty += 1
 
         return empty
@@ -168,13 +183,37 @@ class HashMap:
         Args:
             new_capacity (int): New capacity of this Hash map.
         """
+        # The new_capacity is too small
         if new_capacity < 1:
             return
 
+        # Generate a new Hash map
+        _new_map = DynamicArray()
         for _ in range(new_capacity):
-            self.buckets.append(LinkedList())
+            _new_map.append(LinkedList())
 
-        self.capacity += new_capacity
+        # For everything in this Hash map
+        for index in range(self.capacity):
+            # Get the SLL
+            list = self.buckets.get_at_index(index)
+
+            # If the current SLL is empty, go on
+            if list.length() == 0:
+                continue
+
+            # For all nodes in the SLL
+            for node in list:
+                # Generate a new hash
+                hash = self.hash_function(node.key)
+                indx = hash % new_capacity
+                # Insert into the new map
+                _new_map.get_at_index(indx).insert(node.key, node.value)
+
+        # Overwrite the old values with the new
+        self.buckets = _new_map
+        self.capacity = new_capacity
+        # Clean Up
+        del _new_map
 
         return
 
@@ -183,14 +222,18 @@ class HashMap:
         Returns:
             DynamicArray: Array of keys in this Hash Table.
         """
+        # Generate a DA for the keys
         keys = DynamicArray()
 
         for indx in range(self.capacity):
+            # Get the SLL
             list = self.buckets.get_at_index(indx)
 
-            if list.length() is 0:
+            # If the list is empty, go on
+            if list.length() == 0:
                 continue
 
+            # For each node, add the key to the DA
             for node in list:
                 keys.append(node.key)
 
