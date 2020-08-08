@@ -63,6 +63,7 @@ class HashMap:
         for indx in range(self.capacity):
             for node in self.buckets.get_at_index(indx):
                 self.buckets.get_at_index(indx).remove(node.key)
+                self.size -= 1
 
         return
 
@@ -71,12 +72,14 @@ class HashMap:
         Args:
             key (str): Key to look up.
         """
-        for indx in range(self.capacity):
-            list = self.buckets.get_at_index(indx)
+        hash = self.hash_function(key)
+        index = hash % self.capacity
 
-            if list.contains(key):
-                for node in list:
-                    return node.value
+        list = self.buckets.get_at_index(index)
+
+        if list.contains(key):
+            for node in list:
+                return node.value
 
         return None
 
@@ -86,18 +89,15 @@ class HashMap:
             key (str): Key to insert the value.
             value: Value to insert.
         """
-        if self.contains_key(key):
-            for indx in range(self.capacity):
-                for node in self.buckets.get_at_index(indx):
-                    if node.key is key:
-                        node.value = value
-                        break
-        else:
-            for indx in range(self.capacity):
-                if self.buckets.get_at_index(indx).length() is 0:
-                    self.buckets.get_at_index(indx).insert(key, value)
-                    break
+        hash = self.hash_function(key)
+        index = hash % self.capacity
 
+        if self.contains_key(key):
+            for node in self.buckets.get_at_index(index):
+                if node.key is key:
+                    node.value = value
+        else:
+            self.buckets.get_at_index(index).insert(key, value)
             self.size += 1
 
         return
@@ -107,11 +107,15 @@ class HashMap:
         Args:
             key (str): Key to remove.
         """
+        hash = self.hash_function(key)
+        index = hash % self.capacity
+
         if self.contains_key(key):
-            for indx in range(self.capacity):
-                for node in self.buckets.get_at_index(indx):
-                    if node.key is key:
-                        self.buckets.get_at_index(indx).remove(node.key)
+            for node in self.buckets.get_at_index(index):
+                if node.key is key:
+                    self.buckets.get_at_index(index).remove(node.key)
+
+            self.size -= 1
 
         return
 
@@ -122,11 +126,13 @@ class HashMap:
         Returns:
             bool: True if the key is in the Hash map, False if not.
         """
-        for indx in range(self.capacity):
-            list = self.buckets.get_at_index(indx)
+        hash = self.hash_function(key)
+        index = hash % self.capacity
 
-            if list.contains(key) is not None:
-                return True
+        list = self.buckets.get_at_index(index)
+
+        if list.contains(key) is not None:
+            return True
 
         return False
 
@@ -165,10 +171,10 @@ class HashMap:
         if new_capacity < 1:
             return
 
-        for _ in range(self.capacity, new_capacity):
+        for _ in range(new_capacity):
             self.buckets.append(LinkedList())
 
-        self.capacity = new_capacity
+        self.capacity += new_capacity
 
         return
 
@@ -181,6 +187,9 @@ class HashMap:
 
         for indx in range(self.capacity):
             list = self.buckets.get_at_index(indx)
+
+            if list.length() is 0:
+                continue
 
             for node in list:
                 keys.append(node.key)

@@ -44,12 +44,38 @@ class MinHeap:
         """
         return self.heap.length() == 0
 
+    def _rec_add(self, index: int) -> None:
+        """
+
+        """
+        if index == 0:
+            return
+
+        node = self.heap.get_at_index(index)
+        parent = self.heap.get_at_index((index - 1) // 2)
+
+        if node < parent:
+            self.heap.swap(index, (index - 1) // 2)
+
+            self._rec_add((index - 1) // 2)
+
+        return
+
     def add(self, node: object) -> None:
         """Adds a node to this MinHeap.
         Args:
             node: Node to be added.
         """
         self.heap.append(node)
+
+        parent = self.heap.get_at_index((self.heap.length() - 2) // 2)
+
+        if node < parent:
+            self.heap.swap(self.heap.length() - 1, ((self.heap.length() - 2) // 2))
+
+            self._rec_add((self.heap.length() - 2) // 2)
+
+        return
 
     def get_min(self) -> object:
         """Gets the minimum value from this MinHeap and returns it.
@@ -61,12 +87,67 @@ class MinHeap:
 
         return self.heap.get_at_index(0)
 
+    def _rec_remove(self, index: int) -> None:
+        """
+
+        """
+        child1 = 2 * index + 1
+        child2 = child1 + 1
+
+        if child1 > self.heap.length() and child2 > self.heap.length():
+            return
+
+        child1_node = None
+        child2_node = None
+
+        node = self.heap.get_at_index(index)
+
+        if child1 < self.heap.length():
+            child1_node = self.heap.get_at_index(child1)
+
+        if child2 < self.heap.length():
+            child2_node = self.heap.get_at_index(child2)
+
+        if child2_node is None:
+            if child1_node < node:
+                self.heap.swap(index, child1)
+                self._rec_remove(child1)
+        elif child1_node is None:
+            if child2_node < node:
+                self.heap.swap(index, child2)
+                self._rec_remove(child2)
+        else:
+            if child1_node < child2_node:
+                if child1_node < node:
+                    self.heap.swap(index, child1)
+                    self._rec_remove(child1)
+            else:
+                self.heap.swap(index, child2)
+                self._rec_remove(child2)
+
+        return
+
     def remove_min(self) -> object:
         """Removes the minimum value from this MinHeap and returns it.
         Returns:
             object: Minimum value.
         """
-        return self.heap.pop()
+        if self.is_empty():
+            return MinHeapException
+
+        min = self.heap.get_at_index(0)
+
+        if self.heap.length() == 1:
+            return self.heap.pop()
+
+        last = self.heap.pop()
+
+        self.heap.set_at_index(0, last)
+
+        if self.heap.length() > 1:
+            self._rec_remove(0)
+
+        return min
 
     def build_heap(self, da: DynamicArray) -> None:
         """Builds a new MinHeap over this MinHeap. This is a destructive method.
