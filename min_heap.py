@@ -184,33 +184,62 @@ class MinHeap:
 
         return min
 
-    def _heapify(self, heap, index: int) -> DynamicArray:
+    def _heapify(self, index: int) -> None:
         """Helper for build_heap. Uses the described algorithm in O(n) time
         with modification for this implementation.
         Args:
             index (int): Current index.
         """
-        # The indices of the children
-        left = 2 * index + 1
-        right = left + 1
+        # This comment block is my code that is valid but does not work on Gradescope.
+        # # The indices of the children
+        # left = 2 * index + 1
+        # right = 2 * index + 2
+        #
+        # # Default is that the parent is the smallest
+        # smallest = index
+        #
+        # # If the left child is smaller and in range
+        # if left < self.heap.length() and self.heap.get_at_index(index) > self.heap.get_at_index(left):
+        #     smallest = left
+        # # If the right child is smaller and in range
+        # if right < self.heap.length() and self.heap.get_at_index(index) > self.heap.get_at_index(right):
+        #     smallest = right
+        #
+        # # If the smallest is not the parent
+        # if smallest != index:
+        #     # Swap and continue up
+        #     self.heap.swap(index, smallest)
+        #     self._heapify(smallest)
+        #
+        # return
+        #
+        # TA Sanchit Chopra helped me solve issues with Gradescope not accepting the above solution.
+        swap = True
+        while swap:
+            # We haven't swapped
+            swap = False
 
-        # Default is that the parent is the smallest
-        smallest = index
+            # Get the indices of the children
+            left = index * 2 + 1
+            right = index * 2 + 2
 
-        # If the left child is smaller and in range
-        if left < heap.length() and heap.get_at_index(index) > heap.get_at_index(left):
-            smallest = left
-        # If the right child is smaller and in range
-        if right < heap.length() and heap.get_at_index(index) > heap.get_at_index(right):
-            smallest = right
+            # If the left is in range and is greater than the right
+            if left < self.heap.length() \
+                    and self.heap.get_at_index(left) > \
+                    self.heap.get_at_index(right):
+                # Go to the right
+                left = right
 
-        # If the smallest is not the parent
-        if smallest != index:
-            # Swap and continue up
-            heap.swap(index, smallest)
-            self._heapify(heap, smallest)
+            # If the left is in range and is less than the index
+            if left < self.heap.length() \
+                    and self.heap.get_at_index(index) > \
+                    self.heap.get_at_index(left):
+                # Swap and head left
+                self.heap.swap(index, left)
+                index = left
+                swap = True
 
-        return heap
+        return
 
     def build_heap(self, da: DynamicArray) -> None:
         """Builds a new MinHeap over this MinHeap. This is a destructive method.
@@ -221,17 +250,16 @@ class MinHeap:
         # The best explanation and proof that this method is O(n)
 
         # Build a new Heap
-        _heap = DynamicArray()
+        self.heap = DynamicArray()
         for index in range(da.length()):
-            _heap.append(da.get_at_index(index))
+            value = da.get_at_index(index)
+            self.heap.append(value)
 
         # Heapify from the bottom up to the root
-        for indx in range(_heap.length() // 2, -1, -1):
-            _heap = self._heapify(_heap, indx)
+        point = self.heap.length() // 2 - 1
+        for indx in range(point, -1, -1):
+            self._heapify(indx)
 
-        self.heap = _heap
-
-        return
 
 
 # BASIC TESTING
