@@ -184,7 +184,7 @@ class MinHeap:
 
         return min
 
-    def _heapify(self, index: int) -> None:
+    def _heapify(self, heap, index: int) -> DynamicArray:
         """Helper for build_heap. Uses the described algorithm in O(n) time
         with modification for this implementation.
         Args:
@@ -198,19 +198,19 @@ class MinHeap:
         smallest = index
 
         # If the left child is smaller and in range
-        if left < self.heap.length() and self.heap.get_at_index(index) > self.heap.get_at_index(left):
+        if left < heap.length() and heap.get_at_index(index) > heap.get_at_index(left):
             smallest = left
         # If the right child is smaller and in range
-        if right < self.heap.length() and self.heap.get_at_index(index) > self.heap.get_at_index(right):
+        if right < heap.length() and heap.get_at_index(index) > heap.get_at_index(right):
             smallest = right
 
         # If the smallest is not the parent
         if smallest != index:
             # Swap and continue up
-            self.heap.swap(index, smallest)
-            self._heapify(smallest)
+            heap.swap(index, smallest)
+            self._heapify(heap, smallest)
 
-        return
+        return heap
 
     def build_heap(self, da: DynamicArray) -> None:
         """Builds a new MinHeap over this MinHeap. This is a destructive method.
@@ -221,13 +221,15 @@ class MinHeap:
         # The best explanation and proof that this method is O(n)
 
         # Build a new Heap
-        self.heap = DynamicArray()
+        _heap = DynamicArray()
         for index in range(da.length()):
-            self.heap.append(da.get_at_index(index))
+            _heap.append(da.get_at_index(index))
 
         # Heapify from the bottom up to the root
-        for indx in range(self.heap.length() // 2, -1, -1):
-            self._heapify(indx)
+        for indx in range(_heap.length() // 2, -1, -1):
+            _heap = self._heapify(_heap, indx)
+
+        self.heap = _heap
 
         return
 
